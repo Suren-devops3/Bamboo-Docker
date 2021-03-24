@@ -1,0 +1,46 @@
+### Install Docker in Ubuntu Machine 
+
+sudo apt-get update
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+	
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+  
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+
+## Installing Bamboo Server Using Docker Imager
+
+docker volume create --name bambooVolume
+docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server
+
+http://localhost:8085
+
+change the base url section in General Configuration and save
+
+Do the changes to bamboo.cfg.xml set the bbamboo.jms.broker.client.uri of IP to baseurl
+
+<property name="bamboo.jms.broker.client.uri">failover:(tcp://107.23.124.138:54663?wireFormat.maxInactivityDuration=300000)?initialReconnectDelay=15000&amp;maxReconnectAttempts=10</property>
+
+restart bamboo
+
+## Installing Bamboo remote agent using Docker Image:
+
+docker volume create --name bambooAgentVolume
+
+docker run -v bambooAgentVolume:/home/bamboo/bamboo-agent-home --name="bambooAgent" --init -d atlassian/bamboo-agent-base BAMBOO_SERVER_URL
+
+BAMBOO_SERVER_URL==http://107.23.124.138:8085/
+
